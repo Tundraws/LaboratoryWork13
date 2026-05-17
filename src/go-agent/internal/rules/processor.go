@@ -242,4 +242,3 @@ func rankWords(frequencies map[string]int, limit int) []map[string]any {
 	}
 	return result
 }
-

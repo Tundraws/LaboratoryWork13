@@ -118,4 +118,3 @@ func (a *Agent) respond(msg *nats.Msg, payload any) {
 		a.logger.Error("respond failed", "error", err)
 	}
 }
-

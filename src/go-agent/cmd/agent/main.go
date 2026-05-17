@@ -45,7 +45,7 @@ func run() error {
 		}
 	}()
 
-	store := state.NewRedisStore(cfg.RedisAddr, cfg.Agent.Name)
+	var store state.Store = state.NewRedisStore(cfg.RedisAddr, cfg.Agent.Name)
 	if err := store.Ping(ctx); err != nil {
 		logger.Warn("redis unavailable, falling back to in-memory state", "error", err)
 		store = state.NewMemoryStore(cfg.Agent.Name)
@@ -76,4 +76,3 @@ func run() error {
 		return err
 	}
 }
-

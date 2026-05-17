@@ -37,4 +37,3 @@ func (s *MemoryStore) Processed(ctx context.Context) (int64, error) {
 	}
 	return s.count.Load(), nil
 }
-

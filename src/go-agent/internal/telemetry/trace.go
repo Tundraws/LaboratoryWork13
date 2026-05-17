@@ -28,4 +28,3 @@ func Configure(ctx context.Context, serviceName string) (func(context.Context) e
 	otel.SetTracerProvider(provider)
 	return provider.Shutdown, nil
 }
-

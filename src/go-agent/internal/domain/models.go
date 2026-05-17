@@ -44,7 +44,7 @@ type Task struct {
 }
 
 type Result struct {
-	TaskID    string         `json:"task_id"`
+	TaskID   string         `json:"task_id"`
 	Agent    string         `json:"agent"`
 	Role     string         `json:"role"`
 	TraceID  string         `json:"trace_id"`
@@ -66,4 +66,3 @@ type BidResponse struct {
 	Available bool   `json:"available"`
 	Reason    string `json:"reason"`
 }
-

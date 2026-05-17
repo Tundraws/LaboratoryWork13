@@ -34,4 +34,3 @@ func (s *RedisStore) Processed(ctx context.Context) (int64, error) {
 	}
 	return value, err
 }
-

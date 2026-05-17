@@ -64,4 +64,3 @@ func TestProcessorBidUsesLoadAndRelevance(t *testing.T) {
 		t.Fatalf("expected cost 5, got %d", bid.Cost)
 	}
 }
-

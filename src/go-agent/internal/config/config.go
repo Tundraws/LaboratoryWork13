@@ -61,4 +61,3 @@ func envOrDefault(key string, fallback string) string {
 func RequestTimeout() time.Duration {
 	return 10 * time.Second
 }
-

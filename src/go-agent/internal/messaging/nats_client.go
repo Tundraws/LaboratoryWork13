@@ -53,4 +53,3 @@ func (c *NATSClient) Close() {
 func WaitForShutdown(ctx context.Context) {
 	<-ctx.Done()
 }
-
