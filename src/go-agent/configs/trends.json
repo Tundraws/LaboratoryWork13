@@ -1,0 +1,10 @@
+{
+  "name": "trends-agent",
+  "role": "trends",
+  "task_subject": "social.tasks.trends",
+  "auction_subject": "social.auction.trends",
+  "base_cost": 6,
+  "keywords": ["тренд", "упоминания", "темы", "анализ"],
+  "rules": {}
+}
+

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Social MAS Dashboard</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, Arial, sans-serif;
+      background: #f6f7f9;
+      color: #18202a;
+    }
+    body {
+      margin: 0;
+    }
+    header {
+      padding: 24px 32px;
+      background: #ffffff;
+      border-bottom: 1px solid #d9dee7;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .metric, table {
+      background: #ffffff;
+      border: 1px solid #d9dee7;
+      border-radius: 8px;
+    }
+    .metric {
+      padding: 16px;
+    }
+    .label {
+      color: #5c6877;
+      font-size: 13px;
+    }
+    .value {
+      margin-top: 8px;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 11px 12px;
+      border-bottom: 1px solid #e5e9f0;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    th {
+      background: #eef2f6;
+      color: #344054;
+    }
+    code {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Social MAS Dashboard</h1>
+  </header>
+  <main>
+    <section class="grid">
+      <div class="metric">
+        <div class="label">Событий трассировки</div>
+        <div class="value">{{ events|length }}</div>
+      </div>
+      <div class="metric">
+        <div class="label">Агенты</div>
+        <div class="value">4</div>
+      </div>
+      <div class="metric">
+        <div class="label">Pipeline</div>
+        <div class="value">Сбор -> Тональность -> Тренды -> Отчёт</div>
+      </div>
+    </section>
+    <table>
+      <thead>
+        <tr>
+          <th>Время</th>
+          <th>Trace ID</th>
+          <th>Компонент</th>
+          <th>Действие</th>
+          <th>Данные</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in events|reverse %}
+        <tr>
+          <td>{{ event.timestamp.isoformat() }}</td>
+          <td><code>{{ event.trace_id }}</code></td>
+          <td>{{ event.actor }}</td>
+          <td>{{ event.action }}</td>
+          <td><code>{{ event.payload }}</code></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
+

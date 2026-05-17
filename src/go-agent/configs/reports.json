@@ -1,0 +1,10 @@
+{
+  "name": "reports-agent",
+  "role": "reports",
+  "task_subject": "social.tasks.reports",
+  "auction_subject": "social.auction.reports",
+  "base_cost": 7,
+  "keywords": ["отчёт", "результат", "markdown", "аналитика"],
+  "rules": {}
+}
+

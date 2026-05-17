@@ -1,0 +1,19 @@
+{
+  "name": "sentiment-agent",
+  "role": "sentiment",
+  "task_subject": "social.tasks.sentiment",
+  "auction_subject": "social.auction.sentiment",
+  "base_cost": 5,
+  "keywords": ["отзыв", "негатив", "позитив", "качество"],
+  "rules": {
+    "положительная": 2,
+    "растёт": 1,
+    "качества": 1,
+    "трендом": 1,
+    "негативные": -2,
+    "задержками": -2,
+    "ошибками": -2,
+    "спорят": -1
+  }
+}
+

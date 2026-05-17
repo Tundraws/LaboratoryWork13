@@ -1,0 +1,10 @@
+{
+  "name": "collector-agent",
+  "role": "collector",
+  "task_subject": "social.tasks.collector",
+  "auction_subject": "social.auction.collector",
+  "base_cost": 4,
+  "keywords": ["соцсети", "пост", "telegram", "vk"],
+  "rules": {}
+}
+
