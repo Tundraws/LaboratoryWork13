@@ -6,7 +6,7 @@ test-go:
 	cd src/go-agent && go test ./...
 
 test-python:
-	cd src/orchestrator && pytest ..\..\tests\python
+	pytest tests\python
 
 fmt:
 	cd src/go-agent && gofmt -w ./cmd ./internal
@@ -17,4 +17,3 @@ docker-up:
 
 docker-down:
 	docker compose down
-

@@ -7,7 +7,7 @@ from uuid import uuid4
 from pydantic import BaseModel, ConfigDict, Field
 
 
-AgentRole = Literal["collector", "sentiment", "trends", "reports"]
+AgentRole = Literal["collector", "sentiment", "trends", "llm", "reports"]
 
 
 class AnalyzeRequest(BaseModel):
@@ -70,4 +70,3 @@ class AnalyzeResponse(BaseModel):
     query: str
     steps: list[PipelineStep]
     report: dict[str, Any]
-

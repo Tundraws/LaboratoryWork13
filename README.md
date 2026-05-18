@@ -11,12 +11,13 @@
 
 ## Описание программы
 
-Проект реализует мультиагентную систему для анализа социальных сетей. Оркестратор на Python управляет pipeline обработки, а агенты на Go выполняют отдельные интеллектуальные этапы:
+Проект реализует мультиагентную систему для анализа социальных сетей. Оркестратор на Python управляет pipeline обработки, Go-агенты выполняют основные этапы анализа, а отдельный Python LLM-агент добавляет интеллектуальную интерпретацию трендов:
 
 1. `collector` собирает демонстрационные посты по теме.
 2. `sentiment` анализирует тональность публикаций.
 3. `trends` выявляет часто встречающиеся темы.
-4. `reports` формирует итоговый Markdown-отчёт.
+4. `llm` формирует аналитический вывод через Ollama, cloud-compatible API или deterministic fallback.
+5. `reports` формирует итоговый Markdown-отчёт.
 
 Коммуникация между компонентами выполняется через NATS request/reply. Redis хранит состояние агентов и счётчики обработанных задач. Jaeger подключён для распределённой трассировки, а FastAPI предоставляет REST API и веб-панель мониторинга.
 
@@ -24,6 +25,7 @@
 
 - Go 1.22: универсальный микросервис агента, `nats.go`, Redis state store, graceful shutdown.
 - Python 3.12+: FastAPI, asyncio, `nats-py`, Pydantic, JWT-аутентификация.
+- Python LLM-agent: `nats-py`, `httpx`, поддержка Ollama и облачного API.
 - NATS: брокер сообщений для взаимодействия агентов.
 - Redis: персистентное состояние и метрики агентов.
 - Jaeger / OpenTelemetry: трассировка прохождения задач.
@@ -43,6 +45,8 @@ flowchart LR
     Sentiment --> NATS
     NATS --> Trends[Go trends agent]
     Trends --> NATS
+    NATS --> LLM[Python LLM insight agent]
+    LLM --> NATS
     NATS --> Reports[Go reports agent]
     Reports --> NATS
     Collector --> Redis[(Redis state)]
@@ -56,7 +60,7 @@ flowchart LR
     Reports --> Jaeger
 ```
 
-Исходный код находится в `src/`, тесты находятся в `tests/`. Go-агент сделан универсальным: роль, правила поведения, стоимость в аукционе и специализация задаются JSON-конфигами в `src/go-agent/configs/`.
+Исходный код находится в `src/`, тесты находятся в `tests/`. Go-агент сделан универсальным: роль, правила поведения, стоимость в аукционе и специализация задаются JSON-конфигами в `src/go-agent/configs/`. LLM-агент находится в `src/llm-agent` и является отдельным Python-сервисом.
 
 ## Сборка проекта
 
@@ -100,6 +104,17 @@ docker compose up --build
 - Jaeger UI: `http://localhost:16686`
 - NATS monitoring: `http://localhost:8222`
 
+По умолчанию `LLM_PROVIDER=mock`, поэтому система запускается без ключей и без локальной модели. Для Ollama можно указать:
+
+```powershell
+$env:LLM_PROVIDER="ollama"
+$env:OLLAMA_URL="http://host.docker.internal:11434"
+$env:OLLAMA_MODEL="llama3.1"
+docker compose up --build
+```
+
+Для облачного провайдера используется режим `LLM_PROVIDER=cloud`, `CLOUD_LLM_API_URL` и `CLOUD_LLM_API_KEY`.
+
 ## Примеры запросов
 
 API `/api/analyze` защищён JWT. Для локального примера можно сгенерировать токен тем же секретом, который указан в `.env`:
@@ -134,10 +149,10 @@ curl http://localhost:8000/healthz
 Дополнительные экземпляры агента можно запускать стандартным механизмом Docker Compose:
 
 ```powershell
-docker compose up --scale sentiment-agent=3 --scale trends-agent=2
+docker compose up --scale sentiment-agent=3 --scale trends-agent=2 --scale llm-agent=2
 ```
 
-Перед каждым этапом оркестратор отправляет auction request на тему `social.auction.<role>`. Агент возвращает стоимость, рассчитанную по базовой цене, релевантности ключевых слов и текущей нагрузке. Затем задача отправляется в соответствующую очередь NATS, где несколько экземпляров одного типа распределяют работу через queue group.
+Перед каждым этапом оркестратор отправляет auction request на тему `social.auction.<role>`. Агент возвращает стоимость, рассчитанную по базовой цене, релевантности ключевых слов и текущей нагрузке. Затем задача отправляется в соответствующую очередь NATS, где несколько экземпляров одного типа распределяют работу через queue group. Для LLM-агента стоимость зависит от наличия трендов, текущей нагрузки и выбранного провайдера.
 
 ## Тестирование
 
@@ -160,9 +175,9 @@ pytest tests\python
 Тесты покрывают:
 
 - обработку постов, тональности и аукционной стоимости в Go;
-- успешный pipeline;
+- успешный pipeline с LLM-шагом;
+- генерацию prompt и deterministic fallback для LLM-агента;
 - retry после timeout;
 - ошибку после исчерпания попыток;
 - Pydantic validation errors;
 - успешную и неуспешную JWT-аутентификацию.
-

@@ -21,6 +21,7 @@ TASK_SUBJECTS: dict[AgentRole, str] = {
     "collector": "social.tasks.collector",
     "sentiment": "social.tasks.sentiment",
     "trends": "social.tasks.trends",
+    "llm": "social.tasks.llm",
     "reports": "social.tasks.reports",
 }
 
@@ -28,6 +29,7 @@ AUCTION_SUBJECTS: dict[AgentRole, str] = {
     "collector": "social.auction.collector",
     "sentiment": "social.auction.sentiment",
     "trends": "social.auction.trends",
+    "llm": "social.auction.llm",
     "reports": "social.auction.reports",
 }
 
@@ -55,7 +57,7 @@ class Orchestrator:
 
         steps: list[PipelineStep] = []
         payload: dict[str, object] = request.model_dump()
-        for role in ("collector", "sentiment", "trends", "reports"):
+        for role in ("collector", "sentiment", "trends", "llm", "reports"):
             selected = await self._run_auction(role, trace_id, payload)
             result = await self._send_with_retry(role, trace_id, payload)
             step = PipelineStep(
@@ -107,4 +109,3 @@ class Orchestrator:
                 self._events.append(trace_id, role, "retry", {"attempt": attempt, "error": str(exc)})
 
         raise TimeoutError(f"agent {role} did not respond after {self._retries} attempts") from last_error
-

@@ -62,6 +62,8 @@ services:
         condition: service_healthy
       jaeger:
         condition: service_started
+      llm-agent:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - social-mas
@@ -120,6 +122,30 @@ services:
     networks:
       - social-mas
 
+  llm-agent:
+    build:
+      context: ./src/llm-agent
+    environment:
+      NATS_URL: nats://nats:4222
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1}
+      CLOUD_LLM_API_URL: ${CLOUD_LLM_API_URL:-}
+      CLOUD_LLM_API_KEY: ${CLOUD_LLM_API_KEY:-}
+      HEALTH_ADDR: 0.0.0.0
+      HEALTH_PORT: 8090
+    depends_on:
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/healthz', timeout=2).read()"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - social-mas
+
   reports-agent:
     build:
       context: ./src/go-agent
@@ -144,4 +170,3 @@ networks:
 
 volumes:
   redis-data:
-

@@ -136,8 +136,16 @@ func (p *Processor) generateReport(task domain.Task) (map[string]any, error) {
 		}
 		lines = append(lines, fmt.Sprintf("- %s: %v упоминаний", stringValue(item, "term"), item["count"]))
 	}
+	if insight := stringValue(task.Payload, "llm_insight"); insight != "" {
+		lines = append(lines, "", "LLM-инсайт:", insight)
+	}
 	lines = append(lines, "Рекомендация: отслеживать негативные всплески и усиливать коммуникацию по главным темам.")
-	return map[string]any{"title": "Social media intelligence report", "markdown": strings.Join(lines, "\n"), "trend_count": len(trends)}, nil
+	return map[string]any{
+		"title":       "Social media intelligence report",
+		"markdown":    strings.Join(lines, "\n"),
+		"trend_count": len(trends),
+		"llm_insight": stringValue(task.Payload, "llm_insight"),
+	}, nil
 }
 
 func (p *Processor) keywordRelevance(payload map[string]any) int {

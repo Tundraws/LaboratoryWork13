@@ -33,8 +33,18 @@ class FakeBus:
             output = {"items": [{"id": "p1", "text": "хороший сервис и отчёт", "sentiment": "positive", "score": 2}]}
         elif role == "trends":
             output = {"trends": [{"term": "сервис", "count": 1}, {"term": "отчёт", "count": 1}]}
+        elif role == "llm":
+            output = {
+                "trends": payload["payload"]["trends"],
+                "llm_insight": "LLM-вывод: усилить мониторинг ключевых тем",
+                "llm_provider": "mock",
+            }
         else:
-            output = {"markdown": "Отчёт готов", "trend_count": 2}
+            output = {
+                "markdown": "Отчёт готов",
+                "trend_count": 2,
+                "llm_insight": payload["payload"].get("llm_insight"),
+            }
         return {
             "task_id": task_id,
             "agent": f"{role}-agent",
@@ -57,8 +67,9 @@ async def test_pipeline_success() -> None:
     result = await orchestrator.analyze(AnalyzeRequest(query="соцсети", limit=1))
 
     assert result.query == "соцсети"
-    assert len(result.steps) == 4
+    assert len(result.steps) == 5
     assert result.report["markdown"] == "Отчёт готов"
+    assert result.report["llm_insight"] == "LLM-вывод: усилить мониторинг ключевых тем"
     assert len(events.list()) >= 9
 
 
@@ -85,4 +96,3 @@ async def test_timeout_after_retries() -> None:
 
     with pytest.raises(TimeoutError):
         await orchestrator.analyze(AnalyzeRequest(query="соцсети", limit=1))
-
